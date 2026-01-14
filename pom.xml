@@ -109,6 +109,7 @@
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                     <linkXRef>false</linkXRef>
+                    <sourceDirectories>src/main</sourceDirectories>
                 </configuration>
             </plugin>
             <plugin>
