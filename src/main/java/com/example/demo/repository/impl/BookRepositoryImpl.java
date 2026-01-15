@@ -1,6 +1,6 @@
 package com.example.demo.repository.impl;
 
-import com.example.demo.exceptions.DataProcessingException;
+import com.example.demo.exception.DataProcessingException;
 import com.example.demo.model.Book;
 import com.example.demo.repository.BookRepository;
 import java.util.List;
@@ -55,7 +55,7 @@ public class BookRepositoryImpl implements BookRepository {
         try (Session session = sessionFactory.openSession()) {
             return Optional.ofNullable(session.find(Book.class, id));
         } catch (Exception e) {
-            throw new DataProcessingException("Can't get all books", e);
+            throw new DataProcessingException("Can't find book by id: " + id, e);
         }
     }
 }
