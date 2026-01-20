@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.BookDto;
+import com.example.demo.dto.BookSearchParametersDto;
 import com.example.demo.dto.CreateBookRequestDto;
 import com.example.demo.service.BookService;
 import java.util.List;
@@ -49,6 +50,11 @@ public class BookController {
     @DeleteMapping("/{id}")
     public void deleteBook(@PathVariable Long id) {
         bookService.delete(id);
+    }
+
+    @GetMapping("/search")
+    public List<BookDto> searchBooks(BookSearchParametersDto searchParameters) {
+        return bookService.search(searchParameters);
     }
 
 }
