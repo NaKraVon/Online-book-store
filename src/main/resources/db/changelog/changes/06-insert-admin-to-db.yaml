@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 6
+      author: mrEdoc
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: email
+                  value: admin@gmail.com
+              - column:
+                  name: password
+                  # This is the hash for "1234"
+                  value: $2a$10$n7O85P.B/.K9J6Bv7vU69.vVlGfH8vXW3.y8pXm8.y8pXm8.y8pXm
+              - column:
+                  name: first_name
+                  value: Admin
+              - column:
+                  name: last_name
+                  value: User
+              - column:
+                  name: is_deleted
+                  valueBoolean: false
+        - insert:
+            tableName: users_roles
+            columns:
+              - column:
+                  name: user_id
+                  valueComputed: (SELECT id FROM users WHERE email = 'admin@library.com')
+              - column:
+                  name: role_id
+                  valueComputed: (SELECT id FROM roles WHERE role_name = 'ADMIN')
