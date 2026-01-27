@@ -3,7 +3,7 @@ package com.example.demo.repository.book;
 import static com.example.demo.constant.ApplicationConstant.AUTHOR_KEY;
 import static com.example.demo.constant.ApplicationConstant.TITLE_KEY;
 
-import com.example.demo.dto.BookSearchParametersDto;
+import com.example.demo.dto.book.BookSearchParametersDto;
 import com.example.demo.model.Book;
 import com.example.demo.repository.SpecificationBuilder;
 import com.example.demo.repository.SpecificationProviderManager;

@@ -1,14 +1,15 @@
-package com.example.demo.service.impl;
+package com.example.demo.service.book.impl;
 
-import com.example.demo.dto.BookDto;
-import com.example.demo.dto.BookSearchParametersDto;
-import com.example.demo.dto.CreateBookRequestDto;
+import com.example.demo.dto.book.BookDto;
+import com.example.demo.dto.book.BookSearchParametersDto;
+import com.example.demo.dto.book.CreateBookRequestDto;
 import com.example.demo.exception.EntityNotFoundException;
 import com.example.demo.mapper.BookMapper;
 import com.example.demo.model.Book;
 import com.example.demo.repository.book.BookRepository;
 import com.example.demo.repository.book.BookSpecificationBuilder;
-import com.example.demo.service.BookService;
+import com.example.demo.service.book.BookService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ public class BookServiceImpl implements BookService {
     private final BookSpecificationBuilder bookSpecificationBuilder;
 
     @Override
+    @Transactional
     public BookDto save(CreateBookRequestDto requestDto) {
         Book book = bookMapper.toModel(requestDto);
         return bookMapper.toDto(bookRepository.save(book));
@@ -42,6 +44,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional
     public BookDto update(Long id, CreateBookRequestDto requestDto) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Can not find book with id: " + id));
@@ -51,6 +54,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         if (bookRepository.existsById(id)) {
             bookRepository.deleteById(id);
