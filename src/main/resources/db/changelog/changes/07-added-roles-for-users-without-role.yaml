@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 7
+      author: mrEdoc
+      changes:
+        - sql:
+            dbms: mysql
+            sql: |
+              INSERT INTO users_roles (user_id, role_id)
+              SELECT 
+                u.id AS user_id, 
+                (SELECT id FROM roles WHERE role_name = 'USER') AS role_id
+              FROM users u
+              LEFT JOIN users_roles ur ON u.id = ur.user_id
+              WHERE ur.user_id IS NULL;
