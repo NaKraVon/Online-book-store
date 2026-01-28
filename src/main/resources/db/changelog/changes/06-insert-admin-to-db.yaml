@@ -11,7 +11,6 @@ databaseChangeLog:
                   value: admin@gmail.com
               - column:
                   name: password
-                  # This is the hash for "1234"
                   value: $2a$10$n7O85P.B/.K9J6Bv7vU69.vVlGfH8vXW3.y8pXm8.y8pXm8.y8pXm
               - column:
                   name: first_name

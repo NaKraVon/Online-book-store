@@ -36,7 +36,6 @@ public class UserServiceImpl implements UserService {
         }
         User user = userMapper.toUser(requestDto);
         user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
-        user.setShippingAddress(requestDto.getShippingAddress());
         Role userRole = roleRepository.findByRoleName(RoleName.USER)
                 .orElseThrow(() -> new EntityNotFoundException("Can't find role by name: "
                         + RoleName.USER.name()));
