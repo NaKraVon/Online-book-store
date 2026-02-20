@@ -3,12 +3,14 @@ package com.example.demo.service.book.impl;
 import com.example.demo.dto.book.BookDto;
 import com.example.demo.dto.book.BookSearchParametersDto;
 import com.example.demo.dto.book.CreateBookRequestDto;
+import com.example.demo.dto.category.CategoryResponseDto;
 import com.example.demo.exception.EntityNotFoundException;
 import com.example.demo.mapper.BookMapper;
 import com.example.demo.model.Book;
 import com.example.demo.repository.book.BookRepository;
 import com.example.demo.repository.book.BookSpecificationBuilder;
 import com.example.demo.service.book.BookService;
+import com.example.demo.service.category.CategoryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,7 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
     private final BookSpecificationBuilder bookSpecificationBuilder;
+    private final CategoryService categoryService;
 
     @Override
     @Transactional
@@ -66,6 +69,15 @@ public class BookServiceImpl implements BookService {
         Specification<Book> bookSpecification = bookSpecificationBuilder.build(searchParameters);
         return bookRepository.findAll(bookSpecification, pageable)
                 .map(bookMapper::toDto);
+
+    }
+
+    @Override
+    public Page<BookDto> findAllBooksByCategoryId(Long id, Pageable pageable) {
+        CategoryResponseDto categoryResponseDto = categoryService.findCategoryById(id);
+        Page<Book> books = bookRepository
+                .findAllBooksByCategories_Id(categoryResponseDto.getId(), pageable);
+        return books.map(bookMapper::toDto);
 
     }
 }
