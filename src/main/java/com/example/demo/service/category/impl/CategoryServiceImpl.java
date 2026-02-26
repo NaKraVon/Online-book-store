@@ -11,9 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
@@ -26,25 +28,20 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponseDto findCategoryById(Long id) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Category not found by id: " + id));
+        Category category = findCategoryByID(id);
         return categoryMapper.toResponseDto(category);
     }
 
     @Override
     public CategoryResponseDto updateCategory(Long id, CategoryRequestDto categoryRequestDto) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Category "
-                        + "was not found by id: " + id));
+        Category category = findCategoryByID(id);
         categoryMapper.updateCategoryFromDb(categoryRequestDto, category);
         return categoryMapper.toResponseDto(categoryRepository.save(category));
     }
 
     @Override
     public void deleteCategory(Long id) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Category "
-                        + "was not found by id: " + id));
+        Category category = findCategoryByID(id);
         categoryRepository.deleteById(id);
     }
 
@@ -55,9 +52,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponseDto getCategoryById(Long id) {
-        Category category = categoryRepository.findById(id)
+        Category category = findCategoryByID(id);
+        return categoryMapper.toResponseDto(category);
+    }
+
+    public Category findCategoryByID(Long id) {
+        return categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Category was "
                         + "not found by id: " + id));
-        return categoryMapper.toResponseDto(category);
     }
 }

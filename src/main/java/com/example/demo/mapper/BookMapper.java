@@ -23,7 +23,7 @@ public interface BookMapper {
     void updateModel(
             CreateBookRequestDto createBookRequestDto,
             @MappingTarget Book book);
-
+    
     @AfterMapping
     default void setCategoryIds(@MappingTarget BookDto bookDto, Book book) {
         if (book.getCategories() != null) {
@@ -33,14 +33,6 @@ public interface BookMapper {
             bookDto.setCategoryIds(categoryIds);
         }
     }
-
-    @AfterMapping
-    default void setCategories(CreateBookRequestDto bookDto, @MappingTarget Book book) {
-        Set<Category> categories = bookDto.getCategoriesIds().stream()
-                .map(Category::new)
-                .collect(Collectors.toUnmodifiableSet());
-        book.setCategories(categories);
-    }
-
+    
     BookDtoWithoutCategoriesIds toDtoWithoutCategories(Book book);
 }

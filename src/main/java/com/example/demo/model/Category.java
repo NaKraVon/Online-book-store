@@ -22,8 +22,4 @@ public class Category {
     @Column(nullable = false)
     private String name;
     private String description;
-
-    public Category(Long id) {
-        this.id = id;
-    }
 }

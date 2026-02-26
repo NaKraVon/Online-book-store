@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BookController {
     private final BookService bookService;
 
-    @GetMapping("/getAll")
+    @GetMapping
     @Operation(summary = "Get all books", description = """
             Get all available book in page format
             """)
