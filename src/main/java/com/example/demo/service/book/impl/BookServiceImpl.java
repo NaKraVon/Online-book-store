@@ -19,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
@@ -27,7 +28,6 @@ public class BookServiceImpl implements BookService {
     private final CategoryService categoryService;
 
     @Override
-    @Transactional
     public BookDto save(CreateBookRequestDto requestDto) {
         Book book = bookMapper.toModel(requestDto);
         return bookMapper.toDto(bookRepository.save(book));
@@ -47,17 +47,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    @Transactional
     public BookDto update(Long id, CreateBookRequestDto requestDto) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Can not find book with id: " + id));
-
-        bookMapper.updateModel(requestDto, book);
         return bookMapper.toDto(bookRepository.save(book));
     }
 
     @Override
-    @Transactional
     public void delete(Long id) {
         if (bookRepository.existsById(id)) {
             bookRepository.deleteById(id);
