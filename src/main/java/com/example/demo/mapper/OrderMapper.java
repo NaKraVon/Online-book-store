@@ -15,8 +15,10 @@ public interface OrderMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", source = "user")
+    @Mapping(target = "shippingAddress", source = "requestDto.shippingAddress")
     @Mapping(target = "orderDate", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "total", expression = "java(java.math.BigDecimal.ZERO)")
     @Mapping(target = "status", constant = "PENDING")
+    @Mapping(target = "orderItems", ignore = true)
     Order toModel(OrderRequestDto requestDto, User user);
 }
