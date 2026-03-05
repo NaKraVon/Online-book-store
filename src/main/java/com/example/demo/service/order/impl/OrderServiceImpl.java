@@ -44,9 +44,7 @@ public class OrderServiceImpl implements OrderService {
         ShoppingCart shoppingCart = shoppingCartRepository
                 .findShoppingCartByUser(user);
         Set<CartItem> cartItem = cartItemRepository
-                .getAllCartItemsByShoppingCartId(shoppingCart.getId())
-                .orElseThrow(() -> new EntityNotFoundException("List of "
-                        + "cart items is clear in shoppingCart with id: " + shoppingCart.getId()));
+                .getAllCartItemsByShoppingCartId(shoppingCart.getId());
         Order order = setUpNewOrder(orderRequestDto, user);
         OrderItemSummaryDto orderItemSummaryDto = convertCartItemsToOrderItems(shoppingCart,
                 order, BigDecimal.ZERO);
@@ -98,28 +96,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Order setUpNewOrder(OrderRequestDto orderRequestDto, User user) {
-        Order order = new Order();
-        order.setUser(user);
-        order.setShippingAddress(orderRequestDto.getShippingAddress());
-        order.setOrderDate(LocalDateTime.now());
-        order.setTotal(BigDecimal.ZERO);
-        order.setStatus(Status.PENDING);
-        return order;
+        return orderMapper.toModel(orderRequestDto, user);
     }
 
     private OrderItemSummaryDto convertCartItemsToOrderItems(ShoppingCart shoppingCart,
                                                              Order order, BigDecimal totalPrice) {
         Set<CartItem> cartItems = cartItemRepository
-                .getAllCartItemsByShoppingCartId(shoppingCart.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Can "
-                        + "not find cartItems by shoppingCart id: " + shoppingCart.getId()));
-        Set<OrderItem> orderItems = new HashSet<>();
-        for (CartItem cartItem : cartItems) {
-            OrderItem orderItem = orderItemMapper.convertCartItemToOrderItem(cartItem);
-            totalPrice = totalPrice.add(cartItem.getBook().getPrice());
-            orderItem.setOrder(order);
-            orderItems.add(orderItem);
-        }
+                .getAllCartItemsByShoppingCartId(shoppingCart.getId());
+
+        Set<OrderItem> orderItems = cartItems.stream()
+                .map(cartItem -> {
+                    OrderItem orderItem = orderItemMapper.convertCartItemToOrderItem(cartItem);
+                    orderItem.setOrder(order);
+                    return orderItem;
+                })
+                .collect(Collectors.toSet());
+
         return new OrderItemSummaryDto(orderItems, totalPrice);
     }
 }
