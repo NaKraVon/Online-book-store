@@ -13,7 +13,6 @@ import com.example.demo.model.User;
 import com.example.demo.repository.book.BookRepository;
 import com.example.demo.repository.cartitem.CartItemRepository;
 import com.example.demo.repository.shoppingcart.ShoppingCartRepository;
-import com.example.demo.repository.user.UserRepository;
 import com.example.demo.service.shoppingcart.ShoppingCartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
     private final BookRepository bookRepository;
-    private final UserRepository userRepository;
     private final ShoppingCartMapper shoppingCartMapper;
     private final CartItemMapper cartItemMapper;
     private final CartItemRepository cartItemsRepository;
@@ -54,9 +52,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public ShoppingCartDto updateQuantity(UpdateCartItemQuantityDto requestDto, Long cartItemId) {
-        CartItem cartItem = cartItemsRepository.findById(cartItemId)
+        ShoppingCart shoppingCart = getShoppingCartByUser();
+        CartItem cartItem = shoppingCart.getCartItems().stream()
+                .filter(item -> item.getId().equals(cartItemId))
+                .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "Can't find cartItem by id " + cartItemId));
+                        "Can't find cartItem by id " + cartItemId + " in your shopping cart"));
+
         cartItem.setQuantity(requestDto.getQuantity());
         cartItemsRepository.save(cartItem);
         return getShoppingCart();
@@ -64,11 +66,18 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public void deleteById(Long id) {
-        cartItemsRepository.deleteById(id);
+        ShoppingCart shoppingCart = getShoppingCartByUser();
+        CartItem cartItemToRemove = shoppingCart.getCartItems().stream()
+                .filter(item -> item.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Can't find cartItem by id " + id + " in your shopping cart"));
+
+        cartItemsRepository.delete(cartItemToRemove);
     }
 
     @Override
-    public void eddShoppingCartForNewUser(User user) {
+    public void addShoppingCartForNewUser(User user) {
         ShoppingCart shoppingCart = new ShoppingCart();
         shoppingCart.setUser(user);
         shoppingCartRepository.save(shoppingCart);
@@ -76,10 +85,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     private ShoppingCart getShoppingCartByUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        User userFromDb = userRepository.findById(user.getId()).orElseThrow(
-                () -> new EntityNotFoundException("Can't find user by id " + user.getId())
-        );
-        return shoppingCartRepository.findShoppingCartByUser(userFromDb);
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())
+        ) {
+            throw new RuntimeException("User is not authenticated");
+        }
+
+        User currentUser = (User) authentication.getPrincipal();
+        return shoppingCartRepository.findShoppingCartByUser(currentUser);
     }
 }

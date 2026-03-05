@@ -14,5 +14,5 @@ public interface ShoppingCartService {
 
     void deleteById(Long id);
 
-    void eddShoppingCartForNewUser(User user);
+    void addShoppingCartForNewUser(User user);
 }
