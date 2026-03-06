@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -59,8 +61,11 @@ public class OrderController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping
-    public Set<OrderResponseDto> getAllUserOrders(@AuthenticationPrincipal User user) {
-        return orderService.getByAllOrdersByUserId(user.getId());
+    public Page<OrderResponseDto> getAllUserOrders(
+            @AuthenticationPrincipal User user,
+            Pageable pageable
+    ) {
+        return orderService.getByAllOrdersByUserId(user.getId(), pageable);
     }
 
     @Operation(summary = "Update the status of an order (ADMIN only)")

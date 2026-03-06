@@ -1,6 +1,5 @@
 package com.example.demo.service.order.impl;
 
-import com.example.demo.dto.order.OrderItemSummaryDto;
 import com.example.demo.dto.order.OrderRequestDto;
 import com.example.demo.dto.order.OrderResponseDto;
 import com.example.demo.dto.order.UpdateOrderStatusRequestDto;
@@ -22,6 +21,8 @@ import java.math.BigDecimal;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,22 +41,36 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto createOrder(OrderRequestDto orderRequestDto, User user) {
         ShoppingCart shoppingCart = shoppingCartRepository
                 .findShoppingCartByUser(user);
-        Set<CartItem> cartItem = cartItemRepository
-                .getAllCartItemsByShoppingCartId(shoppingCart.getId());
-        Order order = setUpNewOrder(orderRequestDto, user);
-        OrderItemSummaryDto orderItemSummaryDto = convertCartItemsToOrderItems(shoppingCart,
-                order, BigDecimal.ZERO);
-        order.setTotal(orderItemSummaryDto.getTotalPrice());
-        order.setOrderItems(orderItemSummaryDto.getOrderItems());
+        Set<CartItem> cartItems = shoppingCart.getCartItems();
+
+        if (cartItems.isEmpty()) {
+            throw new IllegalStateException("Cannot create an order: The shopping cart is empty.");
+        }
+
+        Order order = orderMapper.toModel(orderRequestDto, user);
+
+        Set<OrderItem> orderItems = cartItems.stream()
+                .map(cartItem -> {
+                    OrderItem orderItem = orderItemMapper.convertCartItemToOrderItem(cartItem);
+                    orderItem.setOrder(order);
+                    return orderItem;
+                })
+                .collect(Collectors.toSet());
+
+        BigDecimal totalPrice = cartItems.stream()
+                .map(cartItem -> cartItem.getBook().getPrice()
+                        .multiply(BigDecimal.valueOf(cartItem.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        order.setOrderItems(orderItems);
+        order.setTotal(totalPrice);
         return orderMapper.toOrderResponseDto(orderRepository.save(order));
     }
 
     @Override
-    public Set<OrderResponseDto> getByAllOrdersByUserId(Long userId) {
-        Set<Order> orders = orderRepository.findAllOrdersByUserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Can "
-                        + "not find order by user id: " + userId));
-        return orders.stream().map(orderMapper::toOrderResponseDto).collect(Collectors.toSet());
+    public Page<OrderResponseDto> getByAllOrdersByUserId(Long userId, Pageable pageable) {
+        Page<Order> orders = orderRepository.findAllOrdersByUserId(userId, pageable);
+        return orders.map(orderMapper::toOrderResponseDto);
     }
 
     @Override
@@ -90,25 +105,5 @@ public class OrderServiceImpl implements OrderService {
                 .findOrderItemByIdInOrderById(orderId, orderItemId)
                 .orElseThrow(() -> new EntityNotFoundException("Can "
                         + "not find orderItem with id: ")));
-    }
-
-    private Order setUpNewOrder(OrderRequestDto orderRequestDto, User user) {
-        return orderMapper.toModel(orderRequestDto, user);
-    }
-
-    private OrderItemSummaryDto convertCartItemsToOrderItems(ShoppingCart shoppingCart,
-                                                             Order order, BigDecimal totalPrice) {
-        Set<CartItem> cartItems = cartItemRepository
-                .getAllCartItemsByShoppingCartId(shoppingCart.getId());
-
-        Set<OrderItem> orderItems = cartItems.stream()
-                .map(cartItem -> {
-                    OrderItem orderItem = orderItemMapper.convertCartItemToOrderItem(cartItem);
-                    orderItem.setOrder(order);
-                    return orderItem;
-                })
-                .collect(Collectors.toSet());
-
-        return new OrderItemSummaryDto(orderItems, totalPrice);
     }
 }
