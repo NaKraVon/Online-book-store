@@ -42,7 +42,7 @@ public class BookRepositoryTest {
 
         assertThat(actualBook)
                 .usingRecursiveComparison()
-                .ignoringFields("categories", "price", "id") // ID та категорії перевіримо окремо
+                .ignoringFields("categories", "price", "id")
                 .isEqualTo(expectedBookStub());
 
         assertThat(actualBook.getPrice()).isEqualByComparingTo(BigDecimal.valueOf(199.99));
