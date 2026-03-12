@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-
 import com.example.demo.dto.book.BookDto;
 import com.example.demo.dto.book.CreateBookRequestDto;
 import com.example.demo.security.auth.JwtUtil;
@@ -54,7 +53,7 @@ public class BookControllerTest {
 
     @Test
     @DisplayName("Given valid book request, create a new book and return 201 Created")
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @WithMockUser(roles = "ADMIN")
     public void createBook_ValidRequest_ReturnsCreatedBook() throws Exception {
         CreateBookRequestDto requestDto = new CreateBookRequestDto()
             .setTitle("New Spring Boot Book")
@@ -111,7 +110,7 @@ public class BookControllerTest {
 
     @Test
     @DisplayName("Delete book - returns 204 No Content for Admin")
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @WithMockUser(roles = "ADMIN")
     public void deleteBook_ValidId_ReturnsNoContent() throws Exception {
         Long bookId = 1L;
         doNothing().when(bookService).delete(bookId);
