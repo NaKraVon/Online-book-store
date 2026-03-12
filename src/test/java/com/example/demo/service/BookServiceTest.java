@@ -37,7 +37,6 @@ public class BookServiceTest {
     @Test
     @DisplayName("Verify findById() returns a book when ID exists")
     void findById_WithValidId_ShouldReturnBookDto() {
-        // Given
         Long bookId = 1L;
         Book book = new Book().setId(bookId).setTitle("Test Book");
         BookDto bookDto = new BookDto().setId(bookId).setTitle("Test Book");
@@ -45,10 +44,8 @@ public class BookServiceTest {
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
         when(bookMapper.toDto(book)).thenReturn(bookDto);
 
-        // When
         BookDto actual = bookService.findById(bookId);
 
-        // Then
         assertThat(actual).isEqualTo(bookDto);
 
         verify(bookRepository, times(1)).findById(bookId);
