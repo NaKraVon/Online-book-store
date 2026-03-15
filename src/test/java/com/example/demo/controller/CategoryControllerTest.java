@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import com.example.demo.TestDataHelper;
 import com.example.demo.dto.book.BookDto;
 import com.example.demo.dto.category.CategoryRequestDto;
 import com.example.demo.dto.category.CategoryResponseDto;
@@ -35,6 +36,7 @@ public class CategoryControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    private final TestDataHelper testDataHelper = new TestDataHelper();
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     @MockitoBean
@@ -53,13 +55,9 @@ public class CategoryControllerTest {
     @DisplayName("Create category - returns 201 Created for Admin")
     @WithMockUser(roles = "ADMIN")
     public void createCategory_ValidRequest_ReturnsCreated() throws Exception {
-        CategoryRequestDto requestDto = new CategoryRequestDto()
-            .setName("Sci-Fi")
-            .setDescription("Science Fiction books");
+        CategoryRequestDto requestDto = testDataHelper.createCategoryRequestDto();
 
-        CategoryResponseDto responseDto = new CategoryResponseDto()
-            .setId(1L)
-            .setName("Sci-Fi");
+        CategoryResponseDto responseDto = testDataHelper.createCategoryResponseDto();
 
         when(categoryService.createCategory(any(CategoryRequestDto.class))).thenReturn(responseDto);
 
@@ -69,7 +67,7 @@ public class CategoryControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.name").value("Sci-Fi"));
+                .andExpect(jsonPath("$.name").value("Fiction"));
     }
 
     @Test
@@ -92,9 +90,7 @@ public class CategoryControllerTest {
     @DisplayName("Get all categories - returns page of categories")
     @WithMockUser
     public void getAllCategories_ValidRequest_ReturnsPage() throws Exception {
-        CategoryResponseDto responseDto = new CategoryResponseDto();
-        responseDto.setId(1L);
-        responseDto.setName("Fiction");
+        CategoryResponseDto responseDto = testDataHelper.createCategoryResponseDto();
 
         PageImpl<CategoryResponseDto> categoryPage = new PageImpl<>(
                 List.of(responseDto), PageRequest.of(0, 10), 1
@@ -125,9 +121,7 @@ public class CategoryControllerTest {
     @DisplayName("Get books by category ID - returns page of books")
     @WithMockUser
     public void getAllBooksByCategoryId_ValidId_ReturnsBooksPage() throws Exception {
-        BookDto bookDto = new BookDto();
-        bookDto.setId(10L);
-        bookDto.setTitle("Harry Potter");
+        BookDto bookDto = testDataHelper.createBookDto();
 
         PageImpl<BookDto> bookPage = new PageImpl<>(
                 List.of(bookDto), PageRequest.of(0, 10), 1
@@ -139,6 +133,6 @@ public class CategoryControllerTest {
         mockMvc.perform(get("/categories/1/books")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].title").value("Harry Potter"));
+                .andExpect(jsonPath("$.content[0].title").value("New Book"));
     }
 }

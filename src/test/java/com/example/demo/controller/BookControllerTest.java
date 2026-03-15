@@ -12,14 +12,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import com.example.demo.TestDataHelper;
 import com.example.demo.dto.book.BookDto;
 import com.example.demo.dto.book.CreateBookRequestDto;
 import com.example.demo.security.auth.JwtUtil;
 import com.example.demo.service.book.BookService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +39,7 @@ public class BookControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    private final TestDataHelper testDataHelper = new TestDataHelper();
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     @MockitoBean
@@ -55,19 +55,9 @@ public class BookControllerTest {
     @DisplayName("Given valid book request, create a new book and return 201 Created")
     @WithMockUser(roles = "ADMIN")
     public void createBook_ValidRequest_ReturnsCreatedBook() throws Exception {
-        CreateBookRequestDto requestDto = new CreateBookRequestDto()
-            .setTitle("New Spring Boot Book")
-            .setAuthor("John Doe")
-            .setIsbn("999-999-999")
-            .setPrice(BigDecimal.valueOf(500))
-            .setCategoriesIds(Set.of(1L));
+        CreateBookRequestDto requestDto = testDataHelper.createBookRequestDto();
 
-        BookDto expectedResponse = new BookDto()
-            .setId(1L)
-            .setTitle(requestDto.getTitle())
-            .setAuthor(requestDto.getAuthor())
-            .setIsbn(requestDto.getIsbn())
-            .setPrice(requestDto.getPrice());
+        BookDto expectedResponse = testDataHelper.createBookDto(requestDto);
 
         when(bookService.save(any(CreateBookRequestDto.class))).thenReturn(expectedResponse);
 
@@ -84,7 +74,7 @@ public class BookControllerTest {
 
         assertNotNull(actual, "Response body should not be null");
         assertEquals(1L, actual.getId());
-        assertEquals("New Spring Boot Book", actual.getTitle());
+        assertEquals("New Book", actual.getTitle());
         assertEquals("John Doe", actual.getAuthor());
     }
 
@@ -92,9 +82,7 @@ public class BookControllerTest {
     @DisplayName("Get all books - returns page of books")
     @WithMockUser
     public void getAll_ValidRequest_ReturnsPage() throws Exception {
-        BookDto bookDto = new BookDto();
-        bookDto.setId(1L);
-        bookDto.setTitle("Sample Book");
+        BookDto bookDto = testDataHelper.createBookDto();
 
         List<BookDto> books = List.of(bookDto);
         PageImpl<BookDto> bookPage = new PageImpl<>(books, PageRequest.of(0, 10), 1);
@@ -105,7 +93,7 @@ public class BookControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(1L))
-                .andExpect(jsonPath("$.content[0].title").value("Sample Book"));
+                .andExpect(jsonPath("$.content[0].title").value("New Book"));
     }
 
     @Test
@@ -124,16 +112,9 @@ public class BookControllerTest {
     @DisplayName("Create book - returns 201 Created when valid")
     @WithMockUser(roles = "ADMIN")
     public void createBook_ValidRequest_ReturnsCreated() throws Exception {
-        CreateBookRequestDto requestDto = new CreateBookRequestDto();
-        requestDto.setTitle("New Book");
-        requestDto.setAuthor("Author");
-        requestDto.setIsbn("123-456-789");
-        requestDto.setPrice(BigDecimal.valueOf(100));
-        requestDto.setCategoriesIds(Set.of(1L));
+        CreateBookRequestDto requestDto = testDataHelper.createBookRequestDto();
 
-        BookDto expectedResponse = new BookDto();
-        expectedResponse.setId(1L);
-        expectedResponse.setTitle("New Book");
+        BookDto expectedResponse = testDataHelper.createBookDto();
 
         when(bookService.save(any(CreateBookRequestDto.class))).thenReturn(expectedResponse);
 

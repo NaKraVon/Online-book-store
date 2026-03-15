@@ -28,7 +28,7 @@ public class BookRepositoryTest {
     @DisplayName("Find all books by category ID - Corrected Version")
     @Sql(scripts = "/database/book-category/add-books-and-categories.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "/database/book-category/remove-books-and-categories.sql",
+    @Sql(scripts = "/database/book-category/remove-all.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void findAllBooks_ByCategoryId_ShouldReturnCorrectBooks() {
         Long categoryId = 1L;
