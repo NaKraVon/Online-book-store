@@ -4,7 +4,7 @@ import com.example.demo.dto.book.BookDto;
 import com.example.demo.dto.book.CreateBookRequestDto;
 import com.example.demo.dto.category.CategoryRequestDto;
 import com.example.demo.dto.category.CategoryResponseDto;
-
+import com.example.demo.model.Book;
 import java.math.BigDecimal;
 import java.util.Set;
 
@@ -44,5 +44,15 @@ public class TestDataHelper {
         return new CategoryResponseDto()
             .setId(1L)
             .setName("Fiction");
+    }
+
+    public Book createBook() {
+        return new Book()
+                .setTitle("Test Book 1")
+                .setAuthor("Author 1")
+                .setIsbn("111-111")
+                .setPrice(BigDecimal.valueOf(100))
+                .setDescription("Description 1")
+                .setCoverImage("image1.jpg");
     }
 }
