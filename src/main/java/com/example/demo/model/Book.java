@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -21,6 +22,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Getter
 @Setter
 @Table(name = "books")
+@Accessors(chain = true)
 @SQLRestriction("is_deleted = false")
 @SQLDelete(sql = "UPDATE books SET is_deleted = true WHERE id = ?")
 public class Book {
@@ -42,8 +44,8 @@ public class Book {
     @ManyToMany
     @JoinTable(
             name = "books_categories",
-            joinColumns = @JoinColumn(name = "category_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id")
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private Set<Category> categories = new HashSet<>();
 }
