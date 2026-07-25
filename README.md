@@ -182,7 +182,7 @@ SPRING_DOCKER_PORT=8080
 DEBUG_PORT=5005
 ```
 **⚠️ Important:**
-Change MYSQLDB_ROOT_PASSWORD to your own secure password
+Change MYSQL_ROOT_PASSWORD to your own secure password
 Make sure ports don't conflict with other services
 
 #### **_Step 4: Maven repackage_**:
