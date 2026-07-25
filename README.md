@@ -1,7 +1,7 @@
 # 📚 Online Book Store API
 
 ![Java](https://img.shields.io/badge/Java-17-orange.svg?style=for-the-badge&logo=java)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.x-brightgreen.svg?style=for-the-badge&logo=springboot)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.1-brightgreen.svg?style=for-the-badge&logo=springboot)
 ![Spring Security](https://img.shields.io/badge/Spring%20Security-6.x-green.svg?style=for-the-badge&logo=springsecurity)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg?style=for-the-badge&logo=mysql)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg?style=for-the-badge&logo=docker)
@@ -11,19 +11,9 @@ According to global e-commerce trends, the demand for digital and physical book 
 
 ---
 
-## 📞 Contacts:
-[![My Skills](https://skillicons.dev/icons?i=gmail)](mailto:shcherbina.at.work@gmail.com)
-[![My Skills](https://skillicons.dev/icons?i=github)](https://github.com/NaKraVon)
-[![My Skills](https://skillicons.dev/icons?i=linkedin)](https://www.linkedin.com/in/олександр-щербина-4188072bb)
-
-> [!NOTE]
-> For business communication you can send an email on shcherbina.at.work@gmail.com
-
----
-
 ## 💾 Technologies Stack:
 [![My Skills](https://skillicons.dev/icons?i=java,spring,docker,aws,postman,maven,mysql,linux)](#)
-* Java (jbr-17.0.11 JetBrains)
+* Java (v17)
 * Spring Framework(Web, Security, Validation, Data-jpa) (v4.0.1)
 * MySQL (v8.0)
 * Liquibase (v4.29.2)
@@ -153,14 +143,28 @@ mvn spring-boot:run
 
 ---
 
-## Recommendations while using
+## 📥 How to Run Locally
 
-### Docker
+#### **_Step 1: Clone the Repository_**:
 
-> [!WARNING]
-> If you are trying to create docker image for application do not forget to change your .env parameters:
+https://github.com/NaKraVon/Online-book-store
+```bash
+git clone https://github.com/NaKraVon/Online-book-store.git
+cd online-book-store
+```
 
-.env file should look like this:
+#### **_Step 2: Set Up Environment Variables_**:
+
+Copy the environment template
+```bash
+cp .env.template .env
+```
+
+#### **_Step 3: Configure Your .env File_**:
+
+Open the .env file and fill in the following variables:
+
+**Database Configuration:**
 ```
 MYSQL_USER=appuser
 MYSQL_PASSWORD=your_password
@@ -169,14 +173,40 @@ MYSQL_DATABASE=book_store
 
 MYSQL_LOCAL_PORT=3308
 MYSQL_DOCKER_PORT=3306
+```
 
+**Spring Boot Configuration**
+```
 SPRING_LOCAL_PORT=8088
 SPRING_DOCKER_PORT=8080
 DEBUG_PORT=5005
 ```
+**⚠️ Important:**
+Change MYSQLDB_ROOT_PASSWORD to your own secure password
+Make sure ports don't conflict with other services
 
-> [!WARNING]
-> In case you are not using Docker compose instead of Kubernetes don't forget to specify correct platform parameter. In my case platform: linux/amd64
+#### **_Step 4: Maven repackage_**:
+Repackage the project with command:
+```bash
+mvn clean package
+```
+
+#### **_Step 5: Run with Docker_**:
+
+Start all services
+```bash
+docker-compose up --build
+```
+
+#### **_Step 6: Verify the Setup_**:
+
+After successful startup, services will be available at:
+
+API: http://localhost:8088
+
+Swagger UI: http://localhost:8088/api/swagger-ui.html
+
+MySQL: localhost:3308
 
 ---
 ## 🧠 Challenges Faced & Overcome
@@ -188,3 +218,13 @@ Building this application was a tremendous learning experience. Here are a few n
     * *Solution:* I explicitly allowed `DispatcherType.ERROR` in the `SecurityFilterChain` to unmask true HTTP statuses. I also refactored the test setup to manual `MockMvcBuilders.webAppContextSetup()` initialization, applying the security config directly to ensure the test context loaded in the correct order.
 * **Database Referential Integrity:** When implementing the DELETE operation for Categories, I encountered a `DataIntegrityViolationException` because some books were still referencing the category being deleted via the `books_categories` table.
     * *Solution:* I addressed this architectural issue by implementing **Soft Delete** using Hibernate's `@SQLDelete` and `@Where` annotations on the domain entities. This allowed me to safely mark records as deleted without breaking foreign key constraints or losing historical data.
+
+---
+
+## 📞 Contacts:
+[![My Skills](https://skillicons.dev/icons?i=gmail)](mailto:shcherbina.at.work@gmail.com)
+[![My Skills](https://skillicons.dev/icons?i=github)](https://github.com/NaKraVon)
+[![My Skills](https://skillicons.dev/icons?i=linkedin)](https://www.linkedin.com/in/олександр-щербина-4188072bb)
+
+> [!NOTE]
+> For business communication you can send an email on shcherbina.at.work@gmail.com
